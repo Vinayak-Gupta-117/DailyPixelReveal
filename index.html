@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Pixel Reveal</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231D4ED8' d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z'/%3E%3Cpath fill='%23BFDBFE' d='M12 6a6 6 0 00-6 6h2a4 4 0 014-4V6z'/%3E%3C/svg%3E" type="image/svg+xml">
+    
+    <!-- Load Tailwind CSS CDN FIRST -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Configuration for Dark Mode - NOW PLACED AFTER CDN -->
+    <script>
+        // IMPORTANT: This config must be placed AFTER the Tailwind CDN script
+        tailwind.config = {
+            darkMode: 'class', // Explicitly tells Tailwind to use the 'dark' class for dark mode
+            theme: {
+                extend: {
+                    // You can extend your theme here if needed
+                }
+            }
+        }
+    </script>
+    <!-- Import Noto Color Emoji font for better emoji rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <style>
+        /* Custom font for a cleaner look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif; /* Apply Inter font */
+            /* Light theme gradient background - now slightly darker blue */
+            background-image: radial-gradient(at top left, #cce7f0, #ffffff); /* Darker light blue to white gradient */
+            background-attachment: fixed; /* Makes the background stay fixed when scrolling */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            /* Removed flexbox and min-h-screen from body, moved to #page-wrapper */
+        }
+        /* Dark mode overrides the light theme background */
+        .dark body {
+            background-image: none; /* Remove gradient in dark mode */
+        }
+
+
+        /* Custom CSS for specific element sizing not handled by Tailwind */
+        canvas {
+            aspect-ratio: 4 / 3; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below canvas */
+        }
+        #submitGuess {
+            min-width: 100px; /* Ensure button has minimum width */
+            position: relative; /* For spinner positioning */
+            overflow: hidden; /* Hide overflow if text temporarily grows too much */
+        }
+        #submitGuess .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 1em;
+            height: 1em;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #submitGuess.loading .spinner {
+            display: inline-block;
+        }
+        #submitGuess.loading .button-text {
+            visibility: hidden; /* Hide text when loading */
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        #message {
+            min-height: 2em; /* Ensure consistent height */
+        }
+        .share-results pre {
+            max-width: 100%; /* Ensure it doesn't overflow */
+        }
+        .share-results button {
+            min-width: 120px;
+        }
+
+        /* Replaced @apply with direct Tailwind classes for CDN usage */
+        /* Removed margin-top from .share-results as it will be centered by the modal-overlay */
+        .share-results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem; /* p-6 */
+            background-color: #fff; /* bg-white */
+            border-width: 2px; /* border-2 */
+            border-color: #4CAF50; /* border-green-400 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            color: #374151; /* text-gray-800 */
+            max-width: 24rem; /* max-w-sm */
+            width: 100%;
+            /* IMPORTANT CHANGE: Increased padding-right to make space for the close button */
+            padding-right: 3.5rem; /* Increased to accommodate the close button */
+        }
+        .share-results p {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .share-results pre {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            padding: 1rem; /* p-4 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 1.25rem; /* text-xl */
+            font-family: 'Noto Color Emoji', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, monospace;
+            color: #111827; /* text-gray-900 */
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .share-results button {
+            background-color: #10B981; /* bg-green-600 */
+            color: #fff; /* text-white */
+            font-weight: 600; /* font-semibold */
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            transition-property: background-color, transform; /* transition */
+            transition-duration: 300ms; /* duration-300 */
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out */
+            transform: scale(1); /* initial transform */
+            font-size: 1rem; /* text-base */
+            min-width: 120px;
+        }
+        .share-results button:hover {
+            background-color: #059669; /* hover:bg-green-700 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        .share-results button:active {
+            transform: scale(0.95); /* active:scale-95 */
+        }
+        /* Custom styles for the new close button */
+        #closeModalBtn {
+            /* Override previous red background and add new styles */
+            background-color: transparent; /* No background */
+            color: #9CA3AF; /* text-gray-400 */
+            font-size: 1.5rem; /* text-2xl */
+            line-height: 1;
+            padding: 0.25rem 0.5rem; /* py-1 px-2 */
+            border-radius: 9999px; /* rounded-full */
+            transition-property: all;
+            transition-duration: 150ms; /* transition duration-150 */
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out */
+            box-shadow: none; /* remove shadow */
+            /* Adjusted position to be very close to the corner relative to the new padding */
+            top: 0.5rem; /* Adjusted to be consistent with modal's top padding */
+            right: 0.5rem; /* Adjusted to be consistent with modal's right padding */
+        }
+        #closeModalBtn:hover {
+            background-color: transparent; /* Changed to transparent as per request */
+            color: #4B5563; /* hover:text-gray-700 */
+            transform: scale(1.1); /* Slightly enlarge on hover */
+        }
+        #closeModalBtn:active {
+            transform: scale(0.9); /* Slightly shrink on click */
+        }
+
+        /* Specific styling for list items to handle truncation */
+        #guessesList li {
+            white-space: nowrap; /* Prevent wrapping */
+            overflow: hidden;    /* Hide overflowing text */
+            text-overflow: ellipsis; /* Show ellipsis for truncated text */
+            flex-shrink: 0; /* Prevent items from shrinking below content size */
+        }
+        /* Custom class to ensure the guesses list container matches image height */
+        .guesses-display-height {
+            height: 375px; /* UPDATED to match new canvas height */
+            /* Adjusted padding to distribute space for heading and list items */
+            padding-top: 0.75rem; /* pt-3 */
+            padding-bottom: 0.75rem; /* pb-3 */
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+        }
+
+        /* Reverted padding-right for modalTitle as space is now handled by .share-results */
+        #modalTitle {
+            padding-right: 0; /* Revert or remove previous padding */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-300 selection:bg-blue-200 dark:selection:bg-blue-700 overflow-x-hidden">
+    <!-- Theme Toggle Button (fixed, outside main flow) -->
+    <button id="themeToggle" class="fixed top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 shadow-md transition-colors duration-300 ease-in-out z-50">
+        <!-- Sun Icon (initially visible in light mode) -->
+        <svg id="sunIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.825l.707.707M4.968 4.968l.707.707M18.364 5.636l.707-.707M4.968 19.032l.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path>
+        </svg>
+        <!-- Moon Icon (initially hidden, visible in dark mode) -->
+        <svg id="moonIcon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <!-- Main Page Content Wrapper - This will be the flex container for the whole page -->
+    <div id="page-wrapper" class="flex flex-col min-h-screen w-full items-center p-4">
+        <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 dark:text-gray-100 mb-10 text-center drop-shadow-md mt-6">Daily Pixel Reveal</h1>
+
+        <!-- Main Game UI (grows to fill space) -->
+        <div class="flex flex-col items-center w-full max-w-5xl flex-grow">
+            <!-- Main visual content area: Canvas + Guesses List -->
+            <div class="flex flex-col lg:flex-row items-start justify-center gap-8 w-full mb-10">
+                <canvas id="gameCanvas" width="500" height="375" class="border-4 border-blue-600 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl rounded-lg max-w-full h-auto flex-shrink-0"></canvas>
+                
+                <!-- Right Section: Guesses History - Now directly alongside the canvas -->
+                <div class="flex flex-col items-center lg:items-start bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full lg:w-72 max-w-sm lg:max-w-none guesses-display-height">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-300 mb-2">Your Guesses</h2>
+                    <ul id="guessesList" class="w-full text-base text-gray-700 dark:text-gray-400 space-y-0.5 flex flex-col justify-start h-full">
+                        <li class="px-1.5 py-1 rounded-md flex justify-between items-center overflow-hidden whitespace-nowrap text-ellipsis bg-green-200 text-gray-700 dark:bg-green-300 dark:text-black">1. Example Correct</li>
+                        <li class="px-1.5 py-1 rounded-md flex justify-between items-center overflow-hidden whitespace-nowrap text-ellipsis bg-yellow-100 text-gray-700 dark:bg-yellow-200 dark:text-black">2. Example Very Close</li>
+                        <li class="px-1.5 py-1 rounded-md flex justify-between items-center overflow-hidden whitespace-nowrap text-ellipsis bg-orange-100 text-gray-700 dark:bg-orange-200 dark:text-black">3. Example Somewhat Close</li>
+                        <li class="px-1.5 py-1 rounded-md flex justify-between items-center overflow-hidden whitespace-nowrap text-ellipsis bg-red-100 text-gray-700 dark:bg-red-200 dark:text-black">4. Example Not Close</li>
+                    </ul>
+                </div>
+            </div> <!-- End of Main visual content area -->
+
+            <!-- Controls, Message, and Reset Button -->
+            <div class="flex flex-col items-center w-full max-w-5xl">
+                <div class="controls flex flex-col sm:flex-row items-center gap-4 mb-4 w-full max-w-sm">
+                    <input type="text" id="guessInput" placeholder="What is this?" class="flex-grow p-3 border-2 border-blue-300 dark:border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 shadow-sm text-lg bg-white dark:bg-white text-gray-800 dark:text-gray-200">
+                    <button id="submitGuess" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-lg">
+                        <span class="button-text">Guess</span>
+                        <span class="spinner"></span>
+                    </button>
+                </div>
+                <div id="message" class="text-xl font-medium text-gray-700 dark:text-gray-300 mb-6 mt-4 text-center">Loading daily puzzle...</div>
+                <!-- <button id="resetPuzzleBtn" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">Reset Puzzle (for testing)</button> -->
+            </div>
+        </div> <!-- End of Main Game UI (flex-grow) -->
+
+        <!-- Image Source Footer -->
+        <div class="text-sm text-gray-600 dark:text-gray-400 -mt-5 self-start ml-2">
+            Creator: <a href="https://www.linkedin.com/in/guptavinayak117/" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 dark:hover:text-blue-400">Vinayak</a> | <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 dark:hover:text-blue-400">✦</a> | Image Source: <a href="https://unsplash.com/" target="_blank" rel="noopener noreferrer" class="underline hover:text-blue-600 dark:hover:text-blue-400">Unsplash</a>
+        </div>
+    </div> <!-- End of Main Page Content Wrapper -->
+
+    <!-- Modal Overlay for Results Card -->
+    <div id="resultsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="share-results bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl relative">
+            <!-- Dynamic title will go here -->
+            <h3 id="modalTitle" class="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200"></h3> 
+            <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">The answer was: <strong id="correctAnswerDisplay" class="text-blue-700 dark:text-gray-300"></strong></p>
+            <p class="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-50">Share your results:</p>
+            <pre id="shareGridDisplay" class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md text-xl font-mono text-gray-900 dark:text-gray-50 overflow-auto whitespace-pre-wrap break-words mb-4"></pre>
+            <button id="copyToClipboardBtn" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-base">Copy to Clipboard</button>
+            <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 text-2xl font-semibold px-2 py-1 rounded-full transition-all duration-150 ease-in-out hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600">&times;</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

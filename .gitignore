@@ -1,0 +1,37 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+
+# Log files
+*.log
+logs/
+
+# Operating System files
+.DS_Store # macOS
+Thumbs.db # Windows
+
+# IDE specific files
+.idea/ # IntelliJ IDEA
+.vscode/ # VS Code (if you have project-specific settings you don't want to share)
+
+# Backend specific files not meant for version control
+# If your daily_puzzles.json is generated or frequently updated by the app
+# and you don't want to track its changes in Git, you might add it.
+# However, if it contains the base data for your puzzle, you might want to keep it tracked.
+# For now, I'll assume you want to track it, as it's the source of your puzzles.
+# If you decide not to track it:
+# daily_puzzles.json
+
+# If you use ngrok, its config might be generated
+.ngrok2/
+
+# Any other temporary or build-related files
+# For example, if you later add a build step for your frontend:
+# dist/
+# build/
+glove.6B.50d.txt
+.glove.6B.50d.txt
