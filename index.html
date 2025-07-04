@@ -146,28 +146,29 @@
         }
         /* Custom styles for the new close button */
         #closeModalBtn {
-            /* Override previous red background and add new styles */
-            background-color: transparent; /* No background */
-            color: #9CA3AF; /* text-gray-400 */
-            font-size: 1.5rem; /* text-2xl */
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: transparent;
+            color: #9CA3AF;
+            font-size: 1.5rem;
             line-height: 1;
-            padding: 0.25rem 0.5rem; /* py-1 px-2 */
-            border-radius: 9999px; /* rounded-full */
-            transition-property: all;
-            transition-duration: 150ms; /* transition duration-150 */
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out */
-            box-shadow: none; /* remove shadow */
-            /* Adjusted position to be very close to the corner relative to the new padding */
-            top: 0.5rem; /* Adjusted to be consistent with modal's top padding */
-            right: 0.5rem; /* Adjusted to be consistent with modal's right padding */
+            padding: 0.125rem 0.25rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: none;
+            min-width: auto;
         }
         #closeModalBtn:hover {
-            background-color: transparent; /* Changed to transparent as per request */
-            color: #4B5563; /* hover:text-gray-700 */
-            transform: scale(1.1); /* Slightly enlarge on hover */
+            background-color: transparent;
+            color: #4B5563;
+            transform: scale(1.1);
         }
         #closeModalBtn:active {
-            transform: scale(0.9); /* Slightly shrink on click */
+            transform: scale(0.9);
         }
 
         /* Specific styling for list items to handle truncation */
@@ -194,17 +195,28 @@
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-300 selection:bg-blue-200 dark:selection:bg-blue-700 overflow-x-hidden">
-    <!-- Theme Toggle Button (fixed, outside main flow) -->
-    <button id="themeToggle" class="fixed top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 shadow-md transition-colors duration-300 ease-in-out z-50">
-        <!-- Sun Icon (initially visible in light mode) -->
-        <svg id="sunIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.825l.707.707M4.968 4.968l.707.707M18.364 5.636l.707-.707M4.968 19.032l.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path>
-        </svg>
-        <!-- Moon Icon (initially hidden, visible in dark mode) -->
-        <svg id="moonIcon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-        </svg>
-    </button>
+    <!-- New container for theme toggle and date/time -->
+    <div id="topRightControls" class="fixed top-4 right-4 flex items-center space-x-4 z-50">
+        <!-- <span id="currentDateTime" class="text-sm text-gray-700 dark:text-gray-300"></span> -->
+        <!-- NEW How to Play Button -->
+        <button id="howToPlayBtn" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 shadow-md transition-colors duration-300 ease-in-out">
+            <!-- Question Mark Icon (from Heroicons) -->
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+            </svg>
+
+        </button>
+        <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 shadow-md transition-colors duration-300 ease-in-out">
+            <!-- Sun Icon (initially visible in light mode) -->
+            <svg id="sunIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.325 5.825l.707.707M4.968 4.968l.707.707M18.364 5.636l.707-.707M4.968 19.032l.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path>
+            </svg>
+            <!-- Moon Icon (initially hidden, visible in dark mode) -->
+            <svg id="moonIcon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+    </div>
 
     <!-- Main Page Content Wrapper - This will be the flex container for the whole page -->
     <div id="page-wrapper" class="flex flex-col min-h-screen w-full items-center p-4">
@@ -231,7 +243,7 @@
             <!-- Controls, Message, and Reset Button -->
             <div class="flex flex-col items-center w-full max-w-5xl">
                 <div class="controls flex flex-col sm:flex-row items-center gap-4 mb-4 w-full max-w-sm">
-                    <input type="text" id="guessInput" placeholder="What is this?" class="flex-grow p-3 border-2 border-blue-300 dark:border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 shadow-sm text-lg bg-white dark:bg-white text-gray-800 dark:text-gray-200">
+                    <input type="text" id="guessInput" placeholder="What is this?" class="flex-grow p-3 border-2 border-blue-300 dark:border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 shadow-sm text-lg bg-white dark:bg-white text-gray-800 dark:text-gray-800">
                     <button id="submitGuess" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-lg">
                         <span class="button-text">Guess</span>
                         <span class="spinner"></span>
@@ -258,6 +270,36 @@
             <pre id="shareGridDisplay" class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md text-xl font-mono text-gray-900 dark:text-gray-50 overflow-auto whitespace-pre-wrap break-words mb-4"></pre>
             <button id="copyToClipboardBtn" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-base">Copy to Clipboard</button>
             <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 text-2xl font-semibold px-2 py-1 rounded-full transition-all duration-150 ease-in-out hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600">&times;</button>
+        </div>
+    </div>
+
+    <!-- New Modal Overlay for How to Play Instructions -->
+    <div id="instructionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-[100]">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 class="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200 text-center">How to Play</h3>
+
+            <div id="instructionsText" class="text-gray-700 dark:text-gray-300 text-base space-y-3">
+                <p>Welcome to Daily Pixel Reveal! Your goal is to guess the hidden word that describes the pixelated image. You have 7 guesses to reveal the answer.</p>
+                <p><strong>Here's how to play:</strong></p>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li>Observe the pixelated image on the left.</li>
+                    <li>Type your guess into the "What is this?" space. Click the "Guess" button.</li>
+                    <li>Receive feedback:
+                        <ul class="list-disc list-inside ml-4">
+                            <li>"Exact match": You got it! The image will fully reveal.</li>
+                            <li>"Very close": Your guess is semantically very similar to the answer.</li>
+                            <li>"Somewhat close": Your guess has some semantic relation to the answer.</li>
+                            <li>"Not close": Your guess is not related.</li>
+                        </ul>
+                    </li>
+                    <li>With each incorrect guess, the image will de-pixelate slightly, revealing more details.</li>
+                    <li>Your guesses and the feedback will be recorded in the "Your Guesses" list on the right.</li>
+                    <li>If you guess correctly or run out of guesses, the game ends, and the full image and answer are revealed. You can then share your results!</li>
+                </ol>
+                <p>Try to guess the word in as few reveals as possible! A new puzzle awaits you every day.</p><br>
+            </div>
+
+            <button id="closeInstructionsModalBtn" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 text-2xl font-semibold px-2 py-1 rounded-full transition-all duration-150 ease-in-out hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600">&times;</button>
         </div>
     </div>
 
