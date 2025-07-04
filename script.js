@@ -7,7 +7,7 @@ const messageDiv = document.getElementById('message');
 // --- Configuration ---
 // Your backend server URL. Make sure this matches the port your Node.js server is running on.
 // const BACKEND_URL = 'https://95ee-2401-4900-1c73-6ae7-f440-e00f-26e2-ae4.ngrok-free.app';
-const BACKEND_URL = 'http://localhost:3000'; // This will be updated with ngrok URL when testing publicly
+const BACKEND_URL = 'https://nodejs-serverless-function-express-kappa-lime-60.vercel.app/'; // This will be updated with ngrok URL when testing publicly
 
 // We'll set a fixed canvas size. The image from the backend will be scaled to fit.
 const CANVAS_WIDTH = 500; // UPDATED from 400
@@ -59,6 +59,17 @@ const guessesList = document.getElementById('guessesList');
 const themeToggleBtn = document.getElementById('themeToggle');
 const sunIcon = document.getElementById('sunIcon');
 const moonIcon = document.getElementById('moonIcon');
+
+// Reference for the header date/time display (existing)
+const currentDateTimeSpan = document.getElementById('currentDateTime');
+
+// NEW: Reference for the footer date/time display
+const currentDateTimeFooterSpan = document.getElementById('currentDateTimeFooter');
+
+// NEW: References for How to Play modal elements
+const howToPlayBtn = document.getElementById('howToPlayBtn');
+const instructionsModal = document.getElementById('instructionsModal');
+const closeInstructionsModalBtn = document.getElementById('closeInstructionsModalBtn');
 
 
 // --- Core Functions ---
@@ -256,6 +267,20 @@ function hideResultsModal() {
 }
 
 /**
+ * NEW: Shows the instructions modal.
+ */
+function showInstructionsModal() {
+    instructionsModal.classList.remove('hidden');
+}
+
+/**
+ * NEW: Hides the instructions modal.
+ */
+function hideInstructionsModal() {
+    instructionsModal.classList.add('hidden');
+}
+
+/**
  * Updates the "Your Guesses" list on the right side of the screen.
  * Now dynamically adds list items based on `guessesMadeHistory`.
  */
@@ -360,16 +385,29 @@ async function getDailyPuzzleData(forceNewPuzzle = false) {
 async function handleSubmitGuess() {
     const userGuess = guessInput.value.trim().toLowerCase();
 
+    // --- Input Validation ---
+    if (!userGuess) {
+        messageDiv.textContent = "Please enter a guess!";
+        return;
+    }
+    // Check for single word (no spaces)
+    if (userGuess.includes(' ')) {
+        messageDiv.textContent = "Please enter only a single word!";
+        guessInput.value = ''; // Clear input
+        return;
+    }
+    // Check for alphabetic characters only
+    if (!/^[a-z]+$/.test(userGuess)) {
+        messageDiv.textContent = "Please enter only alphabetic characters!";
+        guessInput.value = ''; // Clear input
+        return;
+    }
+
     // --- DEBUG LOGS START ---
     console.log("--- New Guess Attempt ---");
     console.log("Current Guess Count (before increment):", currentGuessCount);
     console.log("Guesses Remaining (before decrement):", guessesRemaining);
     // --- DEBUG LOGS END ---
-
-    if (!userGuess) {
-        messageDiv.textContent = "Please enter a guess!";
-        return;
-    }
 
     // IMPORTANT: Check for game over BEFORE processing guess
     if (guessesRemaining <= 0 || gameWon) { // Added gameWon check
@@ -510,6 +548,9 @@ function resetPuzzle(forceNew = false) {
 
     // Hide the results modal if it's open
     hideResultsModal();
+    // Hide instructions modal if it's open
+    hideInstructionsModal();
+    
     // Clear any existing share results div that might have been dynamically created
     const existingShareDiv = document.querySelector('.share-results');
     if (existingShareDiv && existingShareDiv.parentElement === document.body) { // Check if it's the old, directly appended one
@@ -547,6 +588,42 @@ function toggleTheme() {
     }
 }
 
+/**
+ * Updates the current date and time displayed in the header.
+ */
+function updateDateTimeDisplay() {
+    if (currentDateTimeSpan) { // Check if the element exists
+        const now = new Date();
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true 
+        };
+        currentDateTimeSpan.textContent = now.toLocaleString('en-US', options);
+    }
+}
+
+/**
+ * Updates the current date and time displayed in the footer.
+ */
+function updateFooterDateTimeDisplay() {
+    if (currentDateTimeFooterSpan) { // Check if the element exists
+        const now = new Date();
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true 
+        };
+        currentDateTimeFooterSpan.textContent = now.toLocaleString('en-US', options);
+    }
+}
 
 /**
  * Initializes the game: gets the daily puzzle data and loads the image.
@@ -558,6 +635,8 @@ async function initGame(forceNewPuzzle = false) {
     canvas.height = CANVAS_HEIGHT;
 
     // --- IMPORTANT: Remove existing event listeners before adding new ones ---
+    // This part is crucial for preventing multiple listeners from stacking
+    // when initGame is called multiple times (e.g., on reset).
     if (submitGuessBtn) {
         submitGuessBtn.removeEventListener('click', handleSubmitGuess);
     }
@@ -585,6 +664,18 @@ async function initGame(forceNewPuzzle = false) {
     // Remove existing theme toggle listener to prevent stacking
     if (themeToggleBtn) {
         themeToggleBtn.removeEventListener('click', toggleTheme);
+    }
+    // NEW: Remove existing instructions modal listeners
+    if (howToPlayBtn) {
+        howToPlayBtn.removeEventListener('click', showInstructionsModal);
+    }
+    if (closeInstructionsModalBtn) {
+        closeInstructionsModalBtn.removeEventListener('click', hideInstructionsModal);
+    }
+    if (instructionsModal) {
+        if (instructionsModal._overlayClickHandler) {
+            instructionsModal.removeEventListener('click', instructionsModal._overlayClickHandler);
+        }
     }
 
 
@@ -622,6 +713,23 @@ async function initGame(forceNewPuzzle = false) {
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
+    // NEW: Add event listeners for How to Play modal
+    if (howToPlayBtn) {
+        howToPlayBtn.addEventListener('click', showInstructionsModal);
+    }
+    if (closeInstructionsModalBtn) {
+        closeInstructionsModalBtn.addEventListener('click', hideInstructionsModal);
+    }
+    if (instructionsModal) {
+        const handleInstructionsOverlayClick = (event) => {
+            if (event.target === instructionsModal) {
+                hideInstructionsModal();
+            }
+        };
+        instructionsModal.addEventListener('click', handleInstructionsOverlayClick);
+        instructionsModal._overlayClickHandler = handleInstructionsOverlayClick;
+    }
+
 
     // --- Initial Theme Application (Moved here from index.html) ---
     // Check localStorage for a saved theme preference, otherwise check system preference
@@ -644,6 +752,12 @@ async function initGame(forceNewPuzzle = false) {
 
     // Initialize the guesses list display (will be empty initially)
     updateGuessesListDisplay(); 
+
+    // Update date and time immediately and set interval for updates for both header and footer
+    updateDateTimeDisplay(); // For the header (if still present)
+    updateFooterDateTimeDisplay(); // For the new footer date/time
+    setInterval(updateDateTimeDisplay, 1000); // Update header every second
+    setInterval(updateFooterDateTimeDisplay, 1000); // Update footer every second
 
     // Pass forceNewPuzzle to getDailyPuzzleData
     const puzzleData = await getDailyPuzzleData(forceNewPuzzle);
