@@ -31,6 +31,7 @@ let guessesRemaining = 7;      // Total attempts for the player
 let currentGuessCount = 0;    // How many guesses made in current puzzle
 let gameWon = false;          // Track if the current game was won
 let guessesMadeHistory = [];  // Array to store history of guesses and their feedback
+let copyShareText=""; // Variable to hold the shareable text for copying
 
 // For animation
 let animationStartTime = null;
@@ -200,9 +201,10 @@ function generateShareGrid(won, guessesTaken) {
             grid += UNUSED_SLOT_SYMBOL; // Use black circle for unused slots
         }
     }
-
+    let htmlString = `<u><a href="https://daily-pixel-reveal.vercel.app" target="_blank">Daily Pixel Reveal</a></u>`;
     const summaryLine = won ? `Guessed in ${currentGuessCount}/7 reveals!` : `Couldn't reveal it.`;
-    const shareText = `${GAME_TITLE}\n${summaryLine}\n\n${grid}\nReveal more daily: [Your Game URL Here - will replace later]`;
+    const shareText = `${GAME_TITLE}\n${summaryLine}\n${grid}\n\nPlay: ${htmlString}`;
+    copyShareText= `${GAME_TITLE}\n${summaryLine}\n${grid}\n\nPlay: https://daily-pixel-reveal.vercel.app`
     return shareText;
 }
 
@@ -214,7 +216,7 @@ function generateShareGrid(won, guessesTaken) {
 function displayShareResults(shareText) {
     // Populate modal content
     correctAnswerDisplay.textContent = correctAnswer; // Display the correct answer
-    shareGridDisplay.textContent = shareText; // Display the shareable grid
+    shareGridDisplay.innerHTML = shareText; // Display the shareable grid
 
     // Set modal title based on game outcome
     if (gameWon) {
@@ -227,7 +229,7 @@ function displayShareResults(shareText) {
     copyToClipboardBtn.onclick = () => {
         if (!navigator.clipboard || !navigator.clipboard.writeText) {
             const textArea = document.createElement("textarea");
-            textArea.value = shareText;
+            textArea.value = copyShareText;
             textArea.style.position = "fixed";
             textArea.style.opacity = "0";
             document.body.appendChild(textArea);
@@ -242,7 +244,7 @@ function displayShareResults(shareText) {
             }
             document.body.removeChild(textArea);
         } else {
-            navigator.clipboard.writeText(shareText).then(() => {
+            navigator.clipboard.writeText(copyShareText).then(() => {
                 messageDiv.textContent = 'Results copied to clipboard!';
             }).catch(err => {
                 console.error('Could not copy text: ', err);
@@ -476,7 +478,7 @@ async function handleSubmitGuess() {
         closenessFeedback = data.closeness; // Assign value here
 
         // Store the incorrect guess with its feedback
-        guessesMadeHistory.push({ text: userGuess, closeness: closenessFeedback });
+        guessesMadeHistory.push({ text: userGuess, closeness: closenessFeedback.toLowerCase() });
         updateGuessesListDisplay(); // Update list after incorrect guess
 
         // Display the feedback immediately after receiving it
