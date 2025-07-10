@@ -27,7 +27,7 @@ This project showcases a full-stack application leveraging modern web technologi
 The backend is the brain of the operation, responsible for generating puzzles and evaluating guesses:
 
 - **Node.js & Express**: Provides a fast and unopinionated web server.
-- **Google Gemini API (Gemini 1.5 Flash - Vision Model)**:
+- **Google Gemini API (Gemini 2.0 Flash - Vision Model)**:
   - **Image Description**: Used to analyze random images fetched from Unsplash and generate a single, concise noun that accurately describes the image's content. This word becomes the "correct answer" for the daily puzzle.
 - **Unsplash API**: Provides a vast library of high-quality, royalty-free images, which are then fed to the Gemini Vision model.
 - **Hugging Face Inference API (Sentence Transformers - all-MiniLM-L6-v2)**:
