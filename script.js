@@ -7,7 +7,7 @@ const messageDiv = document.getElementById('message');
 // --- Configuration ---
 // Your backend server URL. Make sure this matches the port your Node.js server is running on.
 // const BACKEND_URL = 'http://localhost:3000';
-const BACKEND_URL = 'https://nodejs-serverless-function-express-b0v1v7jit.vercel.app'; // This will be updated with ngrok URL when testing publicly
+const BACKEND_URL = 'http://nodejs-serverless-function-express-bice-six.vercel.app'; // This will be updated with ngrok URL when testing publicly
 
 
 // We'll set a fixed canvas size. The image from the backend will be scaled to fit.
