@@ -6,8 +6,9 @@ const messageDiv = document.getElementById('message');
 
 // --- Configuration ---
 // Your backend server URL. Make sure this matches the port your Node.js server is running on.
-// const BACKEND_URL = 'https://95ee-2401-4900-1c73-6ae7-f440-e00f-26e2-ae4.ngrok-free.app';
-const BACKEND_URL = 'https://nodejs-serverless-function-express-kappa-lime-60.vercel.app'; // This will be updated with ngrok URL when testing publicly
+// const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://nodejs-serverless-function-express-b0v1v7jit.vercel.app/'; // This will be updated with ngrok URL when testing publicly
+
 
 // We'll set a fixed canvas size. The image from the backend will be scaled to fit.
 const CANVAS_WIDTH = 500; // UPDATED from 400
@@ -356,8 +357,8 @@ async function getDailyPuzzleData(forceNewPuzzle = false) {
         const data = await response.json();
 
         puzzleData = {
-            imageUrl: data.imageUrl,
-            correctWord: data.correctWord
+            imageUrl: data.image_url,
+            correctWord: data.correct_word
         };
 
         // Store the new puzzle in localStorage, using the UTC date as the key for 'lastPuzzleDate'
