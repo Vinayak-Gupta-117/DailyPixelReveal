@@ -31,9 +31,9 @@ The backend is the brain of the operation, responsible for generating puzzles an
   - **Image Description**: Used to analyze random images fetched from Unsplash and generate a single, concise noun that accurately describes the image's content. This word becomes the "correct answer" for the daily puzzle.
 - **Unsplash API**: Provides a vast library of high-quality, royalty-free images, which are then fed to the Gemini Vision model.
 - **Hugging Face Inference API (Sentence Transformers - all-MiniLM-L6-v2)**:
-  - **Semantic Closeness**: Replaces the large local GloVe embeddings. This API is used to generate vector embeddings for both the correct word and the user's guess.
+  - **Semantic Closeness**: This API is used to generate vector embeddings for both the correct word and the user's guess, and check their closeness.
   - **Cosine Similarity**: The backend calculates the cosine similarity between these two vectors to determine how semantically close the guess is to the answer (e.g., "very close," "somewhat close," "not close").
-- **Local JSON File (daily_puzzles.json)**: A simple file-based system to cache and persist the daily puzzle (image URL and correct word) to ensure the same puzzle is served to all users on a given day.
+- **Supabase Database**: A database system that stores the daily puzzle and fetches it for the players.
 
 ## 🎮 How to Play
 1. **Observe the Pixelated Image**: A new mystery image appears daily, initially heavily pixelated.
