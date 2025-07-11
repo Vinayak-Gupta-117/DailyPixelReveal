@@ -1,6 +1,9 @@
 # 🖼️ Daily Pixel Reveal 🧩
 Uncover the hidden word, one pixelated guess at a time!
 
+<img src="https://i.postimg.cc/SsLnSSVb/Screenshot-2025-07-12-000040.png">
+<img src="https://i.postimg.cc/YqdmLS7p/Screenshot-2025-07-11-235743.png">
+
 ## ✨ About The Project
 **Daily Pixel Reveal** is an engaging web-based guessing game where players challenge their semantic intuition and visual recognition skills. Each day, a new mystery image, heavily pixelated, awaits. Your mission? To guess the single word that best describes the image. With every incorrect guess, the image gradually de-pixelates, revealing more clues. Can you uncover the truth before your guesses run out?
 
